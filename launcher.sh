@@ -36,7 +36,8 @@ for url in ${!urlsArray[@]}; do
     sleep 10
     echo "Desconectando VPN $selectedVpn..."
     conexion=`ifconfig | grep ^tun | awk '{ print $1 }'`
-    nmcli con down id $conexion &>/dev/null &
+    nmcli con down id ${conexion//[:]/} &>/dev/null &
+    ifconfig ${conexion//[:]/} down &>/dev/null &
     echo "........................................................................."
     sleep 3
 
