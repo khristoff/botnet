@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Leemos archivos con lista de VPNs y URLs
 vpns=vpns.txt
 urls=urls.txt
 declare -a vpnsArray
@@ -8,33 +9,39 @@ vpnsArray=(`cat "$vpns"`)
 urlsArray=(`cat "$urls"`)
 
 cd /etc/openvpn
-echo "Opening script..."
+echo "Iniciando script..."
 
-for vpn in ${!vpnsArray[@]}; do
+for url in ${!urlsArray[@]}; do
 
-    openvpn ovpn_udp/${vpnsArray[$vpn]} &>/dev/null &
+    # Seleccionamos VPN al azar y realizamos la conexión
+    echo "Seleccionando VPN..."
+    selectedVpn=${vpnsArray[$RANDOM % ${#vpnsArray[@]} ]}
+    openvpn ovpn_udp/$selectedVpn &>/dev/null &
     sleep 15
-    echo "Connecting to VPN ${vpnsArray[$vpn]}..."
+    echo "Conectado a VPN $selectedVpn..."
 
-    for url in ${!urlsArray[@]}; do
+    # Abrimos navegador en modo incógnito
+    echo "Abriendo navegador en modo incógnito con URL ${urlsArray[$url]}..."
+    google-chrome ${urlsArray[$url]} --incognito --no-sandbox &>/dev/null &
 
-        echo "Opening browser (incognito mode) @ URL ${urlsArray[$url]}..."
-        google-chrome ${urlsArray[$url]} --incognito --no-sandbox &>/dev/null &
+    # Cerramos navegador en tiempo aleatorio luego de registrar la visita
+    visitTime=`shuf -i 30-60 -n 1`
+    sleep $visitTime
+    echo "Cerrando el navegador incógnito con URL ${urlsArray[$url]} tras $visitTime segundos..."
+    wmctrl -c "Google Chrome"
+    echo "................................."
+    sleep 3
 
-        sleep 30
-        echo "Closing browser (incognito mode) @ URL ${urlsArray[$url]}..."
-        wmctrl -c "Google Chrome"
-        sleep 3
-
-    done
-
+    # Desconectamos VPN
     sleep 10
-    echo "Closing VPN ${vpnsArray[$vpn]}..."
+    echo "Desconectando VPN $selectedVpn..."
     conexion=`ifconfig | grep ^tun | awk '{ print $1 }'`
     nmcli con down id $conexion &>/dev/null &
+    echo "........................................................................."
     sleep 3
 
 done
 
+# Finalizamos script
 sleep 3
-echo "Closing script..."
+echo "Finalizando script..."
