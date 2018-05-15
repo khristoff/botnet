@@ -14,12 +14,15 @@ echo "Iniciando script..."
 originalIP=`curl ipinfo.io/ip`
 echo "Tu IP original es: $originalIP"
 
+counter=1
+
 for url in ${!urlsArray[@]}; do
 
     # Seleccionamos VPN al azar y realizamos la conexión
     echo "Seleccionando VPN..."
     selectedVpn=${vpnsArray[$RANDOM % ${#vpnsArray[@]} ]}
     openvpn ovpn_udp/$selectedVpn &>/dev/null &
+    # openvpn --config ovpn_udp/$selectedVpn --auth-user-pass auth.txt &>/dev/null &
     sleep 15
 
     vpnIP=`curl ipinfo.io/ip`
@@ -60,6 +63,18 @@ for url in ${!urlsArray[@]}; do
         echo "........................................................................."
         sleep 3
     fi
+
+
+    if [ $(( $counter % 6 )) -eq 0 ]
+    then
+        killall openvpn
+        echo "Límite de conexiones permitidas por NordVPN, espera 7 minutos..."
+        sleep 420
+    else
+        sleep 10
+    fi
+
+    counter=$((counter+1))
 
 done
 
