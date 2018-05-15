@@ -19,6 +19,8 @@ for url in ${!urlsArray[@]}; do
     openvpn ovpn_udp/$selectedVpn &>/dev/null &
     sleep 15
     echo "Conectado a VPN $selectedVpn..."
+    myIP=`curl ipinfo.io/ip`
+    echo "IP detectada: $myIP"
 
     # Abrimos navegador en modo incógnito
     echo "Abriendo navegador en modo incógnito con URL ${urlsArray[$url]}..."
