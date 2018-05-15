@@ -40,6 +40,7 @@ for url in ${!urlsArray[@]}; do
         sleep 3
     else
         echo "Conectado a VPN $selectedVpn..."
+        echo "Conexión $counter/${#urlsArray[@]}"
         echo "Nueva IP asignada: $vpnIP"
 
         # Abrimos navegador en modo incógnito
